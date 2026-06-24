@@ -1,0 +1,20 @@
+
+**** Log file opened at 2026-06-23 15:39:59.564670 UTC+07:00 (SE Asia Standard Time), Encoding UTF-8
+NW RFC Library: Kernel variant, Release 750 Patch Level 11
+Compilation date          : Jan 25 2023 01:21:13
+CPIC library              : 753.2022.12.23 version 3
+NI library                : 40
+Kernel Release            : 753 Patch Level 1116
+Current working directory : C:\Users\ths015142\OneDrive - STANLEY ELECTRIC CO., LTD\Desktop\Work\MVC Project\FactoryLineMKYA\FactoryLineMKYA
+Program                   : dotnet
+Process ID                : 25252
+User                      : THS015142
+Hardware                  : PC with Windows NT 12x AMD64 Level 6 (Mod 186 Step 3)
+Operating_system          : Windows NT 10.0
+Hostname                  : THSNB23-036
+IP address                : 10.200.172.126
+IPv6 address              : fe80::452a:fb05:3793:59f5
+Global trace level        : 0
+
+2026-06-23 15:39:59.477356 [34804] >> Info entry
+	Did not find config file C:\Users\ths015142\OneDrive - STANLEY ELECTRIC CO., LTD\Desktop\Work\MVC Project\FactoryLineMKYA\FactoryLineMKYA\sapnwrfc.ini.

@@ -1,0 +1,90 @@
+﻿@model FactoryLineMKYA.Models.Modelsap.ViewFormmain;
+@{
+    ViewData["Title"] = "Home Page";
+}
+<script src="~/js/jsCalendar.js"></script>
+<div style="border: 2px solid #cfd8e3;
+    padding: 25px;
+    padding-top: 10px;
+    padding-bottom: 50px;
+    margin-top:20px;">
+    <div class="row">
+        <div class="col-lg-8">
+            <img src="~/images/Stanley_Electric_logo.svg.png" class="img-logo" />
+            <h1>Assembly GR & Production Results</h1>
+        </div>
+        <div class=" col-lg-4 justify_center">
+            <button class="load-btn" onclick="jsFunctiongetorder('@Url.Action("GetProductionOrder", "Home")')">Load</button>
+        </div>
+    </div>
+
+    <form action="" id="formRequest" name="formRequest">
+        <div class="row margin_topBotton">
+            <div class="col-lg-3">
+                <label>Production Date</label>
+            </div>
+            <div class="col-lg-3">
+                <input type="text" asp-for="prodDate" class="form-control" style="font-size:16px;height:40px" disabled>
+            </div>
+            <div class="col-lg-6">
+            </div>
+        </div>
+        <div class="row margin_topBotton">
+
+            <div class="col-lg-3">
+                <label>Plant</label>
+            </div>
+            <div class="col-lg-3">
+                <input type="text" asp-for="plant" class="form-control" style="font-size:16px;height:40px" disabled>
+            </div>
+            <div class="col-lg-3">
+                <label>Production Line</label>
+            </div>
+            <div class="col-lg-3">
+                <input type="text" asp-for="prodLine" class="form-control" style="font-size:16px;height:40px" disabled>
+            </div>
+        </div>
+        <br />
+        <div class="row margin_topBotton">
+            <div class="col-lg-3">
+                <label>Production Order <span style="color:red">*</span></label>
+            </div>
+            <div class="col-lg-6">
+                <input type="text" asp-for="prodOrder" id="id_prodOrder" class="form-control" style="font-size:16px;height:40px" required>
+            </div>
+            <div class="col-lg-3">
+            </div>
+        </div>
+        <div class="row margin_topBotton">
+            <div class="col-lg-3">
+                <label>Material <span style="color:red">*</span></label>
+            </div>
+            <div class="col-lg-3">
+                <input type="text" asp-for="Material" id="id_Material" class="form-control" style="font-size:16px;height:40px">
+            </div>
+            <div class="col-lg-3">
+                <label>Delivery Date<span style="color:red">*</span></label>
+            </div>
+            <div class="col-lg-3">
+                @Html.TextBoxFor(m => m.delDate, "{0:dd/MM/yyyy}",
+                                  new {
+                                      @class = "form-control input-with-image datePicker",
+                                      @id = "id_delDate",
+                                      @style = "font-size:16px;height:35px"
+                                      //, @readonly = "readonly"
+                                  })
+
+            </div>
+        </div>
+
+
+    </form>
+</div>
+
+<script>
+    $('.datePicker').datepicker({
+        format: 'yyyy-mm-dd',
+        autoclose: true
+    });
+
+</script>
