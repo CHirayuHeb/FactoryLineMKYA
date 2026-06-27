@@ -1,5 +1,6 @@
 ﻿using FactoryLineMKYA.Services;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,20 +22,21 @@ namespace FactoryLineMKYA.Controllers
 
         // 🌟 สร้างช่องทาง HTTP GET
         // URL สำเร็จจะเป็น: http://[IP_ของคุณ]:[PORT]/api/productionapi/get-order/10002345
-        [HttpGet("get-order/{id}")]
+        [HttpGet("getplanorder/{id}")]
         public async Task<IActionResult> GetOrderData(string id)
         {
-            // เรียกไปที่ฟังก์ชันเตรียมข้อมูลใน Service
             var result = await _apiMkyaservice.GetPreparedDataAsync(id);
 
-            if (result == null)
+            if (result == null || result.t1.ProductionOrder == null)
             {
-                // ถ้าไม่พบข้อมูล ส่ง HTTP 404กลับไป
                 return NotFound(new { message = $"ไม่พบข้อมูลเลขที่ {id}" });
             }
 
-            // 🚀 ถ้าเจอข้อมูล ส่ง HTTP 200 OK พร้อมก้อน JSON ที่เตรียมไว้ให้ฝั่งที่มายิงดึงไปได้เลย!
-            return Ok(result);
+            // 🌟 จัดรูปแบบ JSON ให้เคาะย่อหน้าและเว้นบรรทัดสวยงาม (Formatting.Indented)
+            string prettyJson = JsonConvert.SerializeObject(result, Formatting.Indented);
+
+            // 🚀 ส่งกลับออกไปเป็น Content ประเภท JSON ตรง ๆ ไม่ผ่านการครอบ string ซ้ำ
+            return Content(prettyJson, "application/json");
         }
     }
 }

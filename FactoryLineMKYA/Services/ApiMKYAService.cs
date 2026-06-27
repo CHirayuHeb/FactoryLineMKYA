@@ -1,4 +1,5 @@
-﻿using FactoryLineMKYA.Models.Modelsap;
+﻿using FactoryLineMKYA.Models;
+using FactoryLineMKYA.Models.Modelsap;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -14,9 +15,14 @@ namespace FactoryLineMKYA.Services
         private readonly IHttpClientFactory _httpClientFactory;
         private const string BaseUrl = "http://xx.xx.xx.xx:[PORT]/api/v1"; // 🌟 ตั้ง URL หลักไว้ที่นี่ที่เดียว
 
-        public ApiMKYAService(IHttpClientFactory httpClientFactory)
+        private readonly BapiClass _bapiClass; 
+
+
+        public ApiMKYAService(IHttpClientFactory httpClientFactory, BapiClass bapiClass)
         {
             _httpClientFactory = httpClientFactory;
+            _bapiClass = bapiClass; // 🌟 โยนค่าที่ระบบส่งมา ให้กับตัวแปรของคลาส
+
         }
 
         // ====== 🚀 ฟังก์ชันที่ 1: Production Order ======
@@ -66,19 +72,11 @@ namespace FactoryLineMKYA.Services
         }
 
 
-        public async Task<OrderModel> GetPreparedDataAsync(string orderId)
+        public async Task<ProductionOrderResult> GetPreparedDataAsync(string id)
         {
-            // ตรงนี้คือจุดที่คุณเตรียมข้อมูลครับ 
-            // ตัวอย่าง: ดึงข้อมูลจากฐานข้อมูลของคุณเอง หรือดึงจาก SAP มารอไว้
-            var myData = new OrderModel
-            {
-                // สมมติการใส่ข้อมูลจำลอง (Mock Data) เพื่อเตรียมไว้ให้คนอื่นมา GET
-                OrderId = orderId,
-                Status = "Ready to Production",
-                UpdatedAt = DateTime.Now.ToString()
-            };
 
-            return await Task.FromResult(myData); // ส่งก้อนข้อมูลที่เตรียมเสร็จแล้วกลับออกไป
+            var result = await _bapiClass.GetProductionOrderAsync(id);
+            return await Task.FromResult(result); // ส่งก้อนข้อมูลที่เตรียมเสร็จแล้วกลับออกไป
         }
 
     }

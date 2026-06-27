@@ -16,19 +16,25 @@ namespace FactoryLineMKYA.Controllers
     public class HomeController : Controller
     {
         // private readonly ApiMKYAService _ApiMKYAService;
-        //private readonly BapiClass _BapiClass;
+        // private readonly BapiClass _BapiClass;
+        private readonly BapiClass _BapiClass;
         private readonly IApiMKYAService _apiMkyaservice; // 🌟 เรียกใช้ผ่าน Interface
-        public HomeController( IApiMKYAService apiMkyaservice)
+        public HomeController(IApiMKYAService apiMkyaservice, BapiClass BapiClass)
         {
             _apiMkyaservice = apiMkyaservice;
-           // _BapiClass = BapiClass;
+            _BapiClass = BapiClass;
+            // _BapiClass = BapiClass;
         }
 
-       BapiClass _BapiClass = new BapiClass();
+        //BapiClass _BapiClass = new BapiClass();
+
+
+
+
         public IActionResult Index()
         {
 
-            ViewFormmain _viewFormmain = new ViewFormmain();
+             ViewFormmain _viewFormmain = new ViewFormmain();
             _viewFormmain.prodDate = DateTime.Now.ToString("yyyy/MM/dd");
             _viewFormmain.plant = "6338";
             _viewFormmain.prodLine = "A47";
@@ -51,12 +57,14 @@ namespace FactoryLineMKYA.Controllers
                               ? viewFormmain.prodOrder.Split('|')[1]
                               : viewFormmain.prodOrder;
 
+                var plant = viewFormmain.plant;
+
                 //var deldate = viewFormmain.delDate;
                 var deldate = DateTime.ParseExact(viewFormmain.delDate.ToString(), "yyyy-MM-dd", CultureInfo.InvariantCulture).ToString("yyyyMMdd");
                 //"110000529748"
 
                 var result = await _BapiClass.GetProductionOrderAsync(prodOrder);
-                if (result.success == false)
+                if (result.success == false || result.t1.ProductionOrder == "")
                 {
                     config = "error";
                     msgheader = "Production Order";
@@ -77,15 +85,7 @@ namespace FactoryLineMKYA.Controllers
                     TempData["ErrorMessage"] = apiResultPln;
                 }
 
-
-
-
-
-
-
-
-
-                SaleOrderGetListRequest request = CreateSaleOrderRequest(material, deldate);
+                SaleOrderGetListRequest request = CreateSaleOrderRequest(material, deldate, plant);
                 List<soitem> saleOrders = await _BapiClass.GetSaleOrderListAsync(request);
                 if (saleOrders.Count == 0)
                 {
@@ -95,9 +95,8 @@ namespace FactoryLineMKYA.Controllers
                     return Json(new { c1 = config, c2 = msgheader, c3 = msg });
                 }
                 // 2. เรียกใช้งานคำสั่งแปลงเป็น JSON String ได้เลย!
-                // string saleOrdersJson = JsonConvert.SerializeObject(saleOrders);
+                string saleOrdersJson = JsonConvert.SerializeObject(saleOrders);
                 string apiResultsaleOrders = await _apiMkyaservice.PostSaleOrderPrintLabelAsync(saleOrders);
-                
                 config = "success";
                 msgheader = "success";
                 msg = "Success";
@@ -113,11 +112,11 @@ namespace FactoryLineMKYA.Controllers
 
         }
 
-        private SaleOrderGetListRequest CreateSaleOrderRequest(string material, string delDate)
+        private SaleOrderGetListRequest CreateSaleOrderRequest(string material, string delDate, string plant)
         {
             return new SaleOrderGetListRequest
             {
-                iplant = new List<RSDSSELOPT> { CreateSelectOption("I", "EQ", "6332") },
+                iplant = new List<RSDSSELOPT> { CreateSelectOption("I", "EQ", plant) },
 
                 isoldto = new List<RSDSSELOPT> { CreateSelectOption("I", "BT", "") },
 

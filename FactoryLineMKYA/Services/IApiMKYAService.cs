@@ -14,7 +14,7 @@ namespace FactoryLineMKYA.Services
 
 
         // 🌟 ฟังก์ชันใหม่สำหรับ GET: ดึงข้อมูลที่เตรียมไว้ (สมมติส่งค่ากลับเป็นก้อนข้อมูล ProductionOrderResult)
-        Task<OrderModel> GetPreparedDataAsync(string orderId);
+        Task<ProductionOrderResult> GetPreparedDataAsync(string id);
 
     }
 }

@@ -39,7 +39,11 @@ namespace FactoryLineMKYA
             // 🌟 ลงทะเบียนแบบคู่ (Interface, Class) เพื่อเพิ่มความยืดหยุ่น
             services.AddScoped<IApiMKYAService, ApiMKYAService>();
 
+            services.AddScoped<BapiClass>();
+
             services.Configure<SapConnectionConfig>(Configuration.GetSection("SapConfiguration"));
+            services.AddSingleton(resolver =>Configuration.GetSection("SapConfiguration").Get<SapConnectionConfig>());
+
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 

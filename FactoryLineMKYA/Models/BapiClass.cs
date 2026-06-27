@@ -12,15 +12,32 @@ namespace FactoryLineMKYA.Models
 {
     public class BapiClass
     {
+        //private readonly SapConnectionConfig _sapConfig;
+        //private readonly IConfiguration _configuration;
+
+        //// ตรงนี้คือ Expression-bodied property ที่คุณเขียนไว้ 
+        //// มันจะไปดึงค่าจาก appsettings.json ทุกครั้งที่มีการเรียกใช้ _ImageDirectory
+        //private string _ImageDirectory => _configuration["AppSettings:ImageDirectory"];
+
         private readonly SapConnectionConfig _sapConfig;
         private readonly IConfiguration _configuration;
+
+        // ตรงนี้คือ Expression-bodied property ที่คุณเขียนไว้ 
+        // มันจะไปดึงค่าจาก appsettings.json ทุกครั้งที่มีการเรียกใช้ _ImageDirectory
         private string _ImageDirectory => _configuration["AppSettings:ImageDirectory"];
 
-        //string _dbSap = "AppServerHost=10.216.2.91;SystemNumber=00;User=THSRFC001;Password=THSRFC001@012345a;Client=410;Language=EN;PoolSize=5;SYSID=AQA";
-        // string _dbSap = "AppServerHost=10.216.2.95;SystemNumber=00;User=THSRFC001;Password=THSRFC001@012345a;Client=100;Language=EN;PoolSize=5;SYSID=APA";
-        string _dbSap = "AppServerHost=10.216.2.91;SystemNumber=00;User=THS001748;Password=Abcd1234@567890;Client=400;Language=EN;PoolSize=5;SYSID=AQA";
+        // 1. สร้าง Constructor เพื่อให้ระบบส่ง (Inject) IConfiguration เข้ามา
+        public BapiClass(IConfiguration configuration, SapConnectionConfig sapConfig)
+        {
+            _configuration = configuration;
+            _sapConfig = sapConfig;
+        }
 
-  
+        //string _dbSap = "AppServerHost=10.216.2.91;SystemNumber=00;User=THSRFC001;Password=THSRFC001@012345a;Client=410;Language=EN;PoolSize=5;SYSID=AQA";
+        string _dbSap = "AppServerHost=10.216.2.95;SystemNumber=00;User=THSRFC001;Password=THSRFC001@012345a;Client=100;Language=EN;PoolSize=5;SYSID=APA";
+        //string _dbSap = "AppServerHost=10.216.2.91;SystemNumber=00;User=THS001748;Password=Abcd1234@567890;Client=400;Language=EN;PoolSize=5;SYSID=AQA";
+
+
         private SapConnectionParameters GetConnectionParameters()
         {
             var sapSettings = _configuration.GetSection("SapConfiguration").Get<SapConnectionConfig>();
@@ -118,9 +135,13 @@ namespace FactoryLineMKYA.Models
 
                     }
 
+
+                    result.t1 = t1;
+                    result.t1mat = t1mats;
+                    result.success = true;
                 }
 
-                
+
             }
             catch (Exception ex)
             {
@@ -128,183 +149,190 @@ namespace FactoryLineMKYA.Models
                 result.message = ex.Message;
             }
 
-            return  await Task.FromResult(result);
+            return await Task.FromResult(result);
         }
 
 
         public async Task<List<soitem>> GetSaleOrderListAsync(SaleOrderGetListRequest request)
         {
             List<soitem> result = new List<soitem>();
-          //  var parameters = GetConnectionParameters(); // เรียกใช้ตัว Config ชุดกลาง
-
-            using (var connection = new SapConnection(_dbSap))
+            //  var parameters = GetConnectionParameters(); // เรียกใช้ตัว Config ชุดกลาง
+            try
             {
-                connection.Connect();
-                using (var _func = connection.CreateFunction("ZBF_SALEORDER_GETLIST"))
+                using (var connection = new SapConnection(_dbSap))
                 {
-                    // 1. แมปค่า Parameter ขาเข้า
-                    ZBF_SALEORDER_GETLISTParameter parameter = new ZBF_SALEORDER_GETLISTParameter();
-                    parameter.iplant = request.iplant.ToArray();
-                    // parameter.isoldto = request.isoldto.ToArray();
-                    parameter.imaterial = request.imaterial.ToArray();
-                    // parameter.icustmat = request.icustmat.ToArray();
-                    parameter.idelvdate = request.idelvdate.ToArray();
-                    // parameter.isono = request.isono.ToArray();
-                    // parameter.idist = request.idist.ToArray();
-                    // parameter.idiv = request.idiv.ToArray();
-                    // parameter.ishipto = request.ishipto.ToArray();
-                    // parameter.isaleorg = request.isaleorg.ToArray();
-                    // parameter.iitemno = request.iitemno.ToArray();
-                    // parameter.ipodetail = request.ipodetail.ToArray();
-
-                    // 2. เรียกฟังก์ชันภายใน SAP
-                    var output = _func.Invoke<ZBF_SALEORDER_GETLISTOutput>(parameter);
-
-                    // 3. วนลูปจัดการข้อมูลผลลัพธ์
-                    foreach (var row in output.tsolabel)
+                    connection.Connect();
+                    using (var _func = connection.CreateFunction("ZBF_SALEORDER_GETLIST"))
                     {
-                        soitem so = new soitem();
-                        so.SELECT = false;
-                        so.VBELN = row.VBELN;
-                        so.POSNR = row.POSNR;
-                        so.MATNR = row.MATNR;
-                        so.KDMAT = row.KDMAT;
-                        so.MAKTX_ES = row.MAKTX_ES;
-                        so.MAKTX_EN = row.MAKTX_EN;
-                        so.ZKDNM = row.ZKDNM;
-                        so.BSTKD = row.BSTKD;
-                        so.BSTKD_E = row.BSTKD_E;
-                        so.EMPST = row.EMPST;
-                        so.EDATU = row.EDATU.ToString("dd/MM/yyyy");
-                        so.EZEIT = row.EZEIT.ToString();
-                        so.KWMENG = row.KWMENG;
-                        so.VRKME = row.VRKME;
+                        // 1. แมปค่า Parameter ขาเข้า
+                        ZBF_SALEORDER_GETLISTParameter parameter = new ZBF_SALEORDER_GETLISTParameter();
+                        parameter.iplant = request.iplant.ToArray();
+                        // parameter.isoldto = request.isoldto.ToArray();
+                        parameter.imaterial = request.imaterial.ToArray();
+                        // parameter.icustmat = request.icustmat.ToArray();
+                        parameter.idelvdate = request.idelvdate.ToArray();
+                        // parameter.isono = request.isono.ToArray();
+                        // parameter.idist = request.idist.ToArray();
+                        // parameter.idiv = request.idiv.ToArray();
+                        // parameter.ishipto = request.ishipto.ToArray();
+                        // parameter.isaleorg = request.isaleorg.ToArray();
+                        // parameter.iitemno = request.iitemno.ToArray();
+                        // parameter.ipodetail = request.ipodetail.ToArray();
 
-                        if (int.TryParse(row.PACKSIZE, out var _packsize))
-                            so.PACKSIZE = _packsize;
-                        else
-                            so.PACKSIZE = 0;
+                        // 2. เรียกฟังก์ชันภายใน SAP
+                        var output = _func.Invoke<ZBF_SALEORDER_GETLISTOutput>(parameter);
 
-                        so.MFGDATE = row.MFGDATE.ToString("dd/MM/yyyy");
-                        so.MFGOPEN = false;
-                        so.WERKS = row.WERKS;
-                        so.LGORT = "";
-                        so.LGPBE = row.LGPBE;
-                        so.VKORG = row.VKORG;
-                        so.VTWEG = row.VTWEG;
-                        so.SPART = row.SPART;
-                        so.SOLDTO = row.SOLDTO.TrimStart('0');
-                        so.SOLDTO_NAME = row.SOLDTO_NAME;
-                        so.SHIPTO = row.SHIPTO.TrimStart('0');
-                        so.SHIPTO_NAME = row.SHIPTO_NAME;
-                        so.ZMODC = row.ZMODC;
-                        so.ZCOLOR = row.ZCOLOR;
-                        so.MDV01 = row.MDV01;
-                        so.AUART = row.AUART;
-                        so.Planorder = request.iplanorder;
-
-                        if (so.MATNR != "7414669400")
+                        // 3. วนลูปจัดการข้อมูลผลลัพธ์
+                        foreach (var row in output.tsolabel)
                         {
-                            if (so.MAKTX_EN.Length > 5)
-                                so.SIDE = so.MAKTX_EN.Substring(5, 1);
-                            if (so.SIDE != "R" || so.SIDE != "L")
-                                so.SIDE = "";
-                        }
-                        else
-                        {
-                            so.SIDE = "";
-                        }
+                            soitem so = new soitem();
+                            so.SELECT = false;
+                            so.VBELN = row.VBELN;
+                            so.POSNR = row.POSNR;
+                            so.MATNR = row.MATNR;
+                            so.KDMAT = row.KDMAT;
+                            so.MAKTX_ES = row.MAKTX_ES;
+                            so.MAKTX_EN = row.MAKTX_EN;
+                            so.ZKDNM = row.ZKDNM;
+                            so.BSTKD = row.BSTKD;
+                            so.BSTKD_E = row.BSTKD_E;
+                            so.EMPST = row.EMPST;
+                            so.EDATU = row.EDATU.ToString("dd/MM/yyyy");
+                            so.EZEIT = row.EZEIT.ToString();
+                            so.KWMENG = row.KWMENG;
+                            so.VRKME = row.VRKME;
 
-                        // ====== ส่วนตรวจสอบข้อมูลประจำวัน 25/02/2026 ======
-                        string result_type =  GET_NISSAN_TYPE(so.MATNR); // ⚠️ เมธอดนี้ต้องย้ายมาอยู่ในคลาสนี้ หรือเรียกผ่าน Helper ด้วยนะครับ
+                            if (int.TryParse(row.PACKSIZE, out var _packsize))
+                                so.PACKSIZE = _packsize;
+                            else
+                                so.PACKSIZE = 0;
 
-                        if (string.IsNullOrEmpty(result_type))
-                        {
-                            so.NISSAN_TYPE = "";
-                        }
-                        else
-                        {
-                            string materialNo = request.imaterial.FirstOrDefault()?.high ?? "";
-                            if (string.IsNullOrEmpty(materialNo))
-                                throw new Exception("Material No. is empty"); // เปลี่ยนจาก return Ok เป็นโยน Exception แทน
+                            so.MFGDATE = row.MFGDATE.ToString("dd/MM/yyyy");
+                            so.MFGOPEN = false;
+                            so.WERKS = row.WERKS;
+                            so.LGORT = "";
+                            so.LGPBE = row.LGPBE;
+                            so.VKORG = row.VKORG;
+                            so.VTWEG = row.VTWEG;
+                            so.SPART = row.SPART;
+                            so.SOLDTO = row.SOLDTO.TrimStart('0');
+                            so.SOLDTO_NAME = row.SOLDTO_NAME;
+                            so.SHIPTO = row.SHIPTO.TrimStart('0');
+                            so.SHIPTO_NAME = row.SHIPTO_NAME;
+                            so.ZMODC = row.ZMODC;
+                            so.ZCOLOR = row.ZCOLOR;
+                            so.MDV01 = row.MDV01;
+                            so.AUART = row.AUART;
+                            so.Planorder = request.iplanorder;
 
-                            if (string.IsNullOrEmpty(so.Planorder))
-                                throw new Exception("Production Order is required");
-
-                            so.NISSAN_TYPE = "(" + result_type + ")";
-                        }
-
-                        // ====== ส่วนคำนวณ Path รูปภาพและ Config ======
-                        string _ImageDirectory = await GET_PATH_CONFIG_1(request.rfcname, "A203", "ZBF_SALEORDER_GETLIST", "PATH", "KUNNR", so.SOLDTO);
-                        if (string.IsNullOrEmpty(_ImageDirectory))
-                            _ImageDirectory = "\\\\10.200.128.22\\Database\\pic_no_zTable";
-
-                        so.IMAGEURL = GetImageUrl(so.WERKS, so.KDMAT);
-
-                        string str_soldto = await GET_PATH_CONFIG(request.rfcname, "A203", "ZBF_SALEORDER_GETLIST", "INIT", "KUNNR");
-                        string[] soldtos = str_soldto.Split(',');
-                        if (Array.Exists(soldtos, s => s == so.SOLDTO.TrimStart('0')))
-                            so.ISYAMAHA = "X";
-                        else
-                            so.ISYAMAHA = "";
-
-                        // ====== ส่วนคำนวณ QR Format สำหรับ Yamaha ======
-                        string str_qrformat = await GET_PROG_CONFIG_TAG_THAIYAMAHA(request.rfcname, "A203", "ZBF_SALEORDER_GETLIST", "QRCODE", "KUNNR");
-                        string[] qrformat = str_qrformat.Split(',');
-                        if (Array.Exists(qrformat, s => s.Contains(so.SOLDTO.TrimStart('0'))))
-                        {
-                            string v_text_format_qr = string.Empty;
-                            string[] v_A_format_qr = new string[] { };
-                            string[] v_text_sap = new string[] { };
-                            string v_KDMAT = string.Empty;
-                            string v_sCode = string.Empty;
-                            string v_DShop = string.Empty;
-                            string v_BCTYDATA = string.Empty;
-
-                            for (int i = 0; i < qrformat.Length; i++)
+                            if (so.MATNR != "7414669400")
                             {
-                                if (qrformat[i].ToString().Contains(so.SOLDTO.TrimStart('0')))
+                                if (so.MAKTX_EN.Length > 5)
+                                    so.SIDE = so.MAKTX_EN.Substring(5, 1);
+                                if (so.SIDE != "R" || so.SIDE != "L")
+                                    so.SIDE = "";
+                            }
+                            else
+                            {
+                                so.SIDE = "";
+                            }
+
+                            // ====== ส่วนตรวจสอบข้อมูลประจำวัน 25/02/2026 ======
+                            string result_type = GET_NISSAN_TYPE(so.MATNR); // ⚠️ เมธอดนี้ต้องย้ายมาอยู่ในคลาสนี้ หรือเรียกผ่าน Helper ด้วยนะครับ
+
+                            if (string.IsNullOrEmpty(result_type))
+                            {
+                                so.NISSAN_TYPE = "";
+                            }
+                            else
+                            {
+                                string materialNo = request.imaterial.FirstOrDefault()?.high ?? "";
+                                if (string.IsNullOrEmpty(materialNo))
+                                    throw new Exception("Material No. is empty"); // เปลี่ยนจาก return Ok เป็นโยน Exception แทน
+
+                                if (string.IsNullOrEmpty(so.Planorder))
+                                    throw new Exception("Production Order is required");
+
+                                so.NISSAN_TYPE = "(" + result_type + ")";
+                            }
+
+                            // ====== ส่วนคำนวณ Path รูปภาพและ Config ======
+                            string _ImageDirectory = await GET_PATH_CONFIG_1(request.rfcname, "A203", "ZBF_SALEORDER_GETLIST", "PATH", "KUNNR", so.SOLDTO);
+                            if (string.IsNullOrEmpty(_ImageDirectory))
+                                _ImageDirectory = "\\\\10.200.128.22\\Database\\pic_no_zTable";
+
+                            so.IMAGEURL = GetImageUrl(so.WERKS, so.KDMAT);
+
+                            string str_soldto = await GET_PATH_CONFIG(request.rfcname, "A203", "ZBF_SALEORDER_GETLIST", "INIT", "KUNNR");
+                            string[] soldtos = str_soldto.Split(',');
+                            if (Array.Exists(soldtos, s => s == so.SOLDTO.TrimStart('0')))
+                                so.ISYAMAHA = "X";
+                            else
+                                so.ISYAMAHA = "";
+
+                            // ====== ส่วนคำนวณ QR Format สำหรับ Yamaha ======
+                            string str_qrformat = await GET_PROG_CONFIG_TAG_THAIYAMAHA(request.rfcname, "A203", "ZBF_SALEORDER_GETLIST", "QRCODE", "KUNNR");
+                            string[] qrformat = str_qrformat.Split(',');
+                            if (Array.Exists(qrformat, s => s.Contains(so.SOLDTO.TrimStart('0'))))
+                            {
+                                string v_text_format_qr = string.Empty;
+                                string[] v_A_format_qr = new string[] { };
+                                string[] v_text_sap = new string[] { };
+                                string v_KDMAT = string.Empty;
+                                string v_sCode = string.Empty;
+                                string v_DShop = string.Empty;
+                                string v_BCTYDATA = string.Empty;
+
+                                for (int i = 0; i < qrformat.Length; i++)
                                 {
-                                    if (so.KDMAT.Contains("80") && so.KDMAT.Length > 25)
+                                    if (qrformat[i].ToString().Contains(so.SOLDTO.TrimStart('0')))
                                     {
-                                        try
+                                        if (so.KDMAT.Contains("80") && so.KDMAT.Length > 25)
                                         {
-                                            v_text_sap = qrformat[i].ToString().Split(' ');
-                                            v_text_format_qr = v_text_sap[1].ToString();
-                                            v_A_format_qr = v_text_format_qr.Split('-');
-                                            v_KDMAT = so.KDMAT.Substring(0, 18).Replace("-", "");
-                                            v_sCode = so.KDMAT.Substring(19, 4);
-                                            v_DShop = so.KDMAT.Substring(24, 4);
-                                            v_BCTYDATA = $"{v_A_format_qr[0]}{v_KDMAT}{v_A_format_qr[1]}{v_sCode}{v_A_format_qr[2]}{v_DShop}{v_A_format_qr[3]}{so.PACKSIZE.ToString("D6")}{v_A_format_qr[4]}";
-                                        }
-                                        catch (Exception)
-                                        {
-                                            v_BCTYDATA = string.Empty;
+                                            try
+                                            {
+                                                v_text_sap = qrformat[i].ToString().Split(' ');
+                                                v_text_format_qr = v_text_sap[1].ToString();
+                                                v_A_format_qr = v_text_format_qr.Split('-');
+                                                v_KDMAT = so.KDMAT.Substring(0, 18).Replace("-", "");
+                                                v_sCode = so.KDMAT.Substring(19, 4);
+                                                v_DShop = so.KDMAT.Substring(24, 4);
+                                                v_BCTYDATA = $"{v_A_format_qr[0]}{v_KDMAT}{v_A_format_qr[1]}{v_sCode}{v_A_format_qr[2]}{v_DShop}{v_A_format_qr[3]}{so.PACKSIZE.ToString("D6")}{v_A_format_qr[4]}";
+                                            }
+                                            catch (Exception)
+                                            {
+                                                v_BCTYDATA = string.Empty;
+                                            }
                                         }
                                     }
                                 }
+                                so.BCTYDATA = v_BCTYDATA;
                             }
-                            so.BCTYDATA = v_BCTYDATA;
-                        }
-                        else
-                        {
-                            so.BCTYDATA = string.Empty;
-                        }
+                            else
+                            {
+                                so.BCTYDATA = string.Empty;
+                            }
 
-                        // ====== จัดการขีดเส้นใต้ Underline ======
-                        string iUnder = await GET_PATH_CONFIG_1(request.rfcname, "A203", "ZBF_SALEORDER_GETLIST", "UNDERLINE", "KUNNR", so.SOLDTO);
-                        if (string.IsNullOrEmpty(iUnder))
-                            so.IUNDERL = "0";
-                        else
-                        {
-                            so.IUNDERL = iUnder;
-                            so.KDMAT_1 = so.KDMAT.Substring(0, (Convert.ToInt16(iUnder) - 1));
-                            so.KDMAT_2 = so.KDMAT.Substring(Convert.ToInt16(iUnder) - 1);
-                        }
+                            // ====== จัดการขีดเส้นใต้ Underline ======
+                            string iUnder = await GET_PATH_CONFIG_1(request.rfcname, "A203", "ZBF_SALEORDER_GETLIST", "UNDERLINE", "KUNNR", so.SOLDTO);
+                            if (string.IsNullOrEmpty(iUnder))
+                                so.IUNDERL = "0";
+                            else
+                            {
+                                so.IUNDERL = iUnder;
+                                so.KDMAT_1 = so.KDMAT.Substring(0, (Convert.ToInt16(iUnder) - 1));
+                                so.KDMAT_2 = so.KDMAT.Substring(Convert.ToInt16(iUnder) - 1);
+                            }
 
-                        result.Add(so);
+                            result.Add(so);
+                        }
                     }
                 }
+
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
             }
 
             return result;
@@ -315,7 +343,7 @@ namespace FactoryLineMKYA.Models
         {
             try
             {
-               // var parameters = GetConnectionParameters(); // 🌟 ดึงค่าจากตัวแปรส่วนกลางที่เราทำฟังก์ชันแยกไว้
+                // var parameters = GetConnectionParameters(); // 🌟 ดึงค่าจากตัวแปรส่วนกลางที่เราทำฟังก์ชันแยกไว้
 
                 using (var connection = new SapConnection(_dbSap))
                 {
@@ -346,7 +374,7 @@ namespace FactoryLineMKYA.Models
         {
             try
             {
-               // var parameters = GetConnectionParameters(); // 🌟 ดึงค่าส่วนกลางโดยตรง
+                // var parameters = GetConnectionParameters(); // 🌟 ดึงค่าส่วนกลางโดยตรง
 
                 using (var connection = new SapConnection(_dbSap))
                 {
@@ -389,9 +417,9 @@ namespace FactoryLineMKYA.Models
             try
             {
                 // 🌟 เรียกใช้ชุด Config กลาง ไม่ต้องส่ง rfcname มาแล้ว
-                var parameters = GetConnectionParameters();
+                //var parameters = GetConnectionParameters();
 
-                using (var connection = new SapConnection(parameters))
+                using (var connection = new SapConnection(_dbSap))
                 {
                     connection.Connect();
                     using (var _func = connection.CreateFunction("ZCA002_GET_PROG_CONFIG_RFC"))

@@ -3,83 +3,75 @@
     ViewData["Title"] = "Home Page";
 }
 <script src="~/js/jsCalendar.js"></script>
-<div style="border: 2px solid #cfd8e3;
-    padding: 25px;
-    padding-top: 10px;
-    padding-bottom: 50px;
-    margin-top:20px;">
-    <div class="row">
-        <div class="col-lg-8">
+<div class="card">
+
+    <div class="row top-bar">
+        <div class="col-lg-3">
             <img src="~/images/Stanley_Electric_logo.svg.png" class="img-logo" />
-            <h1>Assembly GR & Production Results</h1>
         </div>
-        <div class=" col-lg-4 justify_center">
-            <button class="load-btn" onclick="jsFunctiongetorder('@Url.Action("GetProductionOrder", "Home")')">Load</button>
+        <div class="col-lg-9">
+            <div class="top-right">
+                <h1>Assembly GR & Production Results</h1>
+                <p>Enter production and material information to record assembly GR and production results.</p>
+            </div>
         </div>
     </div>
-
+    <hr>
     <form action="" id="formRequest" name="formRequest">
-        <div class="row margin_topBotton">
-            <div class="col-lg-3">
+        <div class="row">
+            <div class="form-group">
                 <label>Production Date</label>
+                <input type="text" asp-for="prodDate" readonly class="forminput" style="background-color:lightgray;width:200px">
             </div>
-            <div class="col-lg-3">
-                <input type="text" asp-for="prodDate" class="form-control" style="font-size:16px;height:40px" disabled>
-            </div>
-            <div class="col-lg-6">
-            </div>
-        </div>
-        <div class="row margin_topBotton">
-
-            <div class="col-lg-3">
+            <div class="form-group">
                 <label>Plant</label>
+                <input type="text" asp-for="plant" readonly class="forminput" style="background-color:lightgray">
             </div>
-            <div class="col-lg-3">
-                <input type="text" asp-for="plant" class="form-control" style="font-size:16px;height:40px" disabled>
-            </div>
-            <div class="col-lg-3">
+            <div class="form-group">
                 <label>Production Line</label>
-            </div>
-            <div class="col-lg-3">
-                <input type="text" asp-for="prodLine" class="form-control" style="font-size:16px;height:40px" disabled>
+                <input type="text" asp-for="prodLine" readonly class="forminput" style="background-color:lightgray">
             </div>
         </div>
-        <br />
-        <div class="row margin_topBotton">
-            <div class="col-lg-3">
-                <label>Production Order <span style="color:red">*</span></label>
-            </div>
-            <div class="col-lg-6">
-                <input type="text" asp-for="prodOrder" id="id_prodOrder" class="form-control" style="font-size:16px;height:40px" required>
-            </div>
-            <div class="col-lg-3">
+        @*<div class="row">
+                <div class="form-group">
+                    <label>Plant</label>
+                    <input type="text" asp-for="plant" readonly class="forminput" style="background-color:lightgray">
+                </div>
+
+                <div class="form-group">
+                    <label>Production Line</label>
+                    <input type="text" asp-for="prodLine" readonly class="forminput" style="background-color:lightgray">
+                </div>
+            </div>*@
+        <hr>
+        <div class="row">
+            <div class="form-group full-width">
+                <label>Production Order <span>*</span></label>
+                <input type="text" placeholder="Enter production order" class="forminput" id="id_prodOrder" asp-for="prodOrder">
             </div>
         </div>
-        <div class="row margin_topBotton">
-            <div class="col-lg-3">
-                <label>Material <span style="color:red">*</span></label>
+        <div class="row">
+            <div class="form-group">
+                <label>Material <span>*</span></label>
+                <input type="text" placeholder="Enter material" asp-for="Material" id="id_Material" class="forminput">
             </div>
-            <div class="col-lg-3">
-                <input type="text" asp-for="Material" id="id_Material" class="form-control" style="font-size:16px;height:40px">
-            </div>
-            <div class="col-lg-3">
-                <label>Delivery Date<span style="color:red">*</span></label>
-            </div>
-            <div class="col-lg-3">
-                @Html.TextBoxFor(m => m.delDate, "{0:dd/MM/yyyy}",
-                                  new {
-                                      @class = "form-control input-with-image datePicker",
-                                      @id = "id_delDate",
-                                      @style = "font-size:16px;height:35px"
-                                      //, @readonly = "readonly"
-                                  })
 
+            <div class="form-group">
+                <label>Delivery Date <span>*</span></label>
+                @Html.TextBoxFor(m => m.delDate, "{0:dd/MM/yyyy}",new { @class = "forminput datePicker", @id = "id_delDate",@placeholder = "Select Delivery date"})
             </div>
         </div>
-
-
     </form>
+    <div class="action">
+        @*<button class="btn-clear">Clear</button>*@
+        <button class="btn-search" onclick="jsFunctiongetorder('@Url.Action("GetProductionOrder", "Home")')">Search</button>
+    </div>
+
 </div>
+
+
+
+
 
 <script>
     $('.datePicker').datepicker({

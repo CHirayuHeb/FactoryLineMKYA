@@ -29,3 +29,4 @@ C:\Users\ths015142\OneDrive - STANLEY ELECTRIC CO., LTD\Desktop\Work\MVC Project
 C:\Users\ths015142\OneDrive - STANLEY ELECTRIC CO., LTD\Desktop\Work\MVC Project\FactoryLineMKYA\FactoryLineMKYA\obj\Debug\netcoreapp2.1\FactoryLineMKYA.dll
 C:\Users\ths015142\OneDrive - STANLEY ELECTRIC CO., LTD\Desktop\Work\MVC Project\FactoryLineMKYA\FactoryLineMKYA\obj\Debug\netcoreapp2.1\FactoryLineMKYA.pdb
 C:\Users\ths015142\OneDrive - STANLEY ELECTRIC CO., LTD\Desktop\Work\MVC Project\FactoryLineMKYA\FactoryLineMKYA\obj\Debug\netcoreapp2.1\FactoryLineMKYA.csproj.CopyComplete
+C:\Users\ths015142\OneDrive - STANLEY ELECTRIC CO., LTD\Desktop\Work\MVC Project\FactoryLineMKYA\FactoryLineMKYA\obj\Debug\netcoreapp2.1\FactoryLineMKYA.csprojAssemblyReference.cache
